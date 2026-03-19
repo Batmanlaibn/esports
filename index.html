@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-SPORTS SYSTEM v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --bg3: #141428;
+    --card: #1a1a2e;
+    --border: #2a2a4a;
+    --accent: #00f5ff;
+    --accent2: #7b2fff;
+    --accent3: #ff2d55;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --text: #e0e0f0;
+    --text2: #8888aa;
+    --glow: 0 0 20px rgba(0,245,255,0.3);
+    --glow2: 0 0 20px rgba(123,47,255,0.3);
+  }
+  .light {
+    --bg: #f0f2ff;
+    --bg2: #e8eaf6;
+    --bg3: #dde1f5;
+    --card: #ffffff;
+    --border: #c5cae9;
+    --text: #1a1a3e;
+    --text2: #5555aa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG GRID */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky; top:0; z-index:100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap:12px;
+  }
+  .logo {
+    font-family:'Orbitron',monospace;
+    font-size: 1.4rem; font-weight:900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+  .logo span { font-size:0.7rem; display:block; color:var(--text2); -webkit-text-fill-color:var(--text2); letter-spacing:2px; }
+
+  nav { display:flex; gap:4px; flex-wrap:wrap; }
+  nav button {
+    font-family:'Exo 2',sans-serif;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size:0.82rem;
+    letter-spacing:0.5px;
+    transition: all 0.2s;
+  }
+  nav button:hover, nav button.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .header-actions { display:flex; gap:10px; align-items:center; }
+  .theme-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width:38px; height:38px;
+    border-radius:50%;
+    cursor:pointer; font-size:1.1rem;
+    transition: all 0.2s;
+  }
+  .theme-btn:hover { border-color:var(--accent); box-shadow:var(--glow); }
+  .user-badge {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing:1px;
+  }
+
+  /* MAIN */
+  main { position:relative; z-index:1; padding: 24px; max-width:1200px; margin:0 auto; }
+  .page { display:none; animation: fadeIn 0.4s ease; }
+  .page.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom:20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: var(--accent); box-shadow: var(--glow); }
+  .card-title {
+    font-family:'Orbitron',monospace;
+    font-size:0.85rem;
+    color: var(--accent);
+    letter-spacing:2px;
+    margin-bottom:16px;
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title::before { content:''; display:inline-block; width:3px; height:16px; background:var(--accent); border-radius:2px; }
+
+  /* GRID */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:900px){ .grid3,.grid4{grid-template-columns:1fr 1fr;} }
+  @media(max-width:600px){ .grid2,.grid3,.grid4{grid-template-columns:1fr;} }
+
+  /* STAT BOXES */
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    text-align:center;
+    transition:all 0.2s;
+    cursor:default;
+  }
+  .stat-box:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:var(--glow); }
+  .stat-num {
+    font-family:'Orbitron',monospace;
+    font-size:2rem; font-weight:900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .stat-label { font-size:0.78rem; color:var(--text2); letter-spacing:1px; margin-top:4px; }
+
+  /* BUTTONS */
+  .btn {
+    font-family:'Exo 2',sans-serif;
+    padding: 10px 22px;
+    border-radius:8px;
+    border:none; cursor:pointer;
+    font-size:0.88rem; font-weight:600;
+    letter-spacing:1px;
+    transition: all 0.2s;
+    text-transform:uppercase;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color:#000;
+    box-shadow: 0 4px 15px rgba(0,245,255,0.2);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 25px rgba(0,245,255,0.4); }
+  .btn-danger { background: var(--accent3); color:#fff; }
+  .btn-danger:hover { transform:translateY(-2px); box-shadow:0 4px 15px rgba(255,45,85,0.4); }
+  .btn-outline {
+    background:transparent; border:1px solid var(--accent);
+    color:var(--accent);
+  }
+  .btn-outline:hover { background:var(--accent); color:#000; }
+  .btn-gold { background: linear-gradient(135deg,#ffd700,#ff9500); color:#000; }
+  .btn-sm { padding:6px 14px; font-size:0.78rem; }
+
+  /* INPUTS */
+  input, select, textarea {
+    font-family:'Exo 2',sans-serif;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size:0.9rem;
+    width:100%;
+    outline:none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus { border-color:var(--accent); box-shadow:var(--glow); }
+  label { font-size:0.8rem; color:var(--text2); margin-bottom:5px; display:block; letter-spacing:0.5px; }
+  .form-group { margin-bottom:14px; }
+
+  /* BADGE */
+  .badge {
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .badge-cyan { background:rgba(0,245,255,0.15); color:var(--accent); border:1px solid rgba(0,245,255,0.3); }
+  .badge-purple { background:rgba(123,47,255,0.15); color:var(--accent2); border:1px solid rgba(123,47,255,0.3); }
+  .badge-red { background:rgba(255,45,85,0.15); color:var(--accent3); border:1px solid rgba(255,45,85,0.3); }
+  .badge-gold { background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3); }
+  .badge-green { background:rgba(0,255,100,0.15); color:#00ff64; border:1px solid rgba(0,255,100,0.3); }
+
+  /* HERO */
+  .hero {
+    text-align:center;
+    padding: 50px 20px 40px;
+    position:relative;
+  }
+  .hero-title {
+    font-family:'Orbitron',monospace;
+    font-size: clamp(2rem,5vw,4rem);
+    font-weight:900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    line-height:1.1; margin-bottom:12px;
+    animation: pulse-text 3s infinite;
+  }
+  @keyframes pulse-text {
+    0%,100%{filter:drop-shadow(0 0 8px rgba(0,245,255,0.4))}
+    50%{filter:drop-shadow(0 0 20px rgba(0,245,255,0.8))}
+  }
+  .hero-sub {
+    color:var(--text2); font-size:1rem;
+    margin-bottom:30px; letter-spacing:2px;
+  }
+  .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+  /* LIVE TICKER */
+  .live-ticker {
+    background: var(--bg3);
+    border: 1px solid var(--accent3);
+    border-radius:8px;
+    padding:10px 16px;
+    font-size:0.82rem;
+    color:var(--accent3);
+    display:flex; gap:10px; align-items:center;
+    margin-bottom:20px;
+    overflow:hidden;
+  }
+  .live-dot {
+    width:8px; height:8px;
+    background:var(--accent3); border-radius:50%;
+    animation:blink 1s infinite;
+    flex-shrink:0;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+  .ticker-text { white-space:nowrap; animation:scroll 20s linear infinite; }
+  @keyframes scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+  /* BRACKET */
+  .bracket-container { overflow-x:auto; }
+  .bracket { display:flex; gap:40px; padding:20px 0; min-width:600px; }
+  .bracket-round { display:flex; flex-direction:column; gap:0; justify-content:space-around; }
+  .bracket-round-title {
+    font-family:'Orbitron',monospace;
+    font-size:0.7rem; color:var(--accent);
+    text-align:center; margin-bottom:16px;
+    letter-spacing:2px;
+  }
+  .match-card {
+    background:var(--bg3);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    width:160px;
+    margin:8px 0;
+    transition:all 0.2s;
+  }
+  .match-card:hover { border-color:var(--accent); box-shadow:var(--glow); }
+  .match-player {
+    padding:8px 12px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:0.82rem; font-weight:600;
+  }
+  .match-player:first-child { border-bottom:1px solid var(--border); }
+  .match-player.winner { background:rgba(0,245,255,0.1); color:var(--accent); }
+  .match-score {
+    font-family:'Orbitron',monospace;
+    font-size:0.85rem; font-weight:700;
+  }
+
+  /* LEADERBOARD */
+  .lb-table { width:100%; border-collapse:collapse; }
+  .lb-table th {
+    text-align:left; padding:10px 14px;
+    font-family:'Orbitron',monospace;
+    font-size:0.7rem; color:var(--text2);
+    letter-spacing:1px; border-bottom:1px solid var(--border);
+  }
+  .lb-table td {
+    padding:12px 14px; font-size:0.88rem;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    transition:background 0.2s;
+  }
+  .lb-table tr:hover td { background:rgba(0,245,255,0.03); }
+  .rank-1 .rank-num { color:var(--gold); font-weight:900; font-size:1.1rem; }
+  .rank-2 .rank-num { color:var(--silver); font-weight:700; }
+  .rank-3 .rank-num { color:var(--bronze); font-weight:700; }
+  .rank-num { font-family:'Orbitron',monospace; font-weight:600; }
+  .player-name { font-weight:600; }
+  .score-bar-wrap { display:flex; align-items:center; gap:10px; }
+  .score-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .score-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width 0.8s ease; }
+
+  /* LOGIN */
+  .login-wrap {
+    max-width:420px; margin:40px auto;
+  }
+  .login-logo {
+    text-align:center;
+    font-family:'Orbitron',monospace;
+    font-size:1.8rem; font-weight:900;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .login-sub { text-align:center; color:var(--text2); font-size:0.85rem; margin-bottom:30px; letter-spacing:1px; }
+  .role-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+  .role-btn {
+    border:1px solid var(--border);
+    background:var(--bg3);
+    color:var(--text2);
+    padding:14px 8px;
+    border-radius:10px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.2s;
+    font-size:0.8rem;
+  }
+  .role-btn .role-icon { font-size:1.6rem; display:block; margin-bottom:6px; }
+  .role-btn:hover, .role-btn.selected {
+    border-color:var(--accent); color:var(--accent);
+    background:rgba(0,245,255,0.05);
+    box-shadow:var(--glow);
+  }
+
+  /* ACHIEVEMENT */
+  .ach-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+  .ach-card {
+    background:var(--bg3);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    text-align:center;
+    transition:all 0.2s;
+  }
+  .ach-card:hover { border-color:var(--accent2); box-shadow:var(--glow2); transform:translateY(-2px); }
+  .ach-card.locked { opacity:0.4; }
+  .ach-icon { font-size:2rem; margin-bottom:8px; }
+  .ach-name { font-size:0.78rem; font-weight:600; margin-bottom:4px; }
+  .ach-desc { font-size:0.7rem; color:var(--text2); }
+
+  /* TOAST */
+  .toast-container { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+  .toast {
+    background:var(--card); border:1px solid var(--accent);
+    padding:12px 18px; border-radius:8px;
+    font-size:0.85rem; font-weight:600;
+    box-shadow:var(--glow);
+    animation:toastIn 0.3s ease;
+    display:flex; gap:10px; align-items:center;
+  }
+  @keyframes toastIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:none}}
+
+  /* DEMO ANIMATION */
+  .demo-status {
+    text-align:center; padding:20px;
+    font-family:'Orbitron',monospace;
+    font-size:1.1rem; color:var(--accent);
+    letter-spacing:2px;
+    min-height:40px;
+  }
+  .winner-announce {
+    text-align:center;
+    padding:30px;
+    background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,149,0,0.05));
+    border:1px solid var(--gold);
+    border-radius:12px;
+    margin-top:20px;
+  }
+  .winner-name {
+    font-family:'Orbitron',monospace;
+    font-size:2rem; font-weight:900;
+    color:var(--gold);
+    text-shadow:0 0 20px rgba(255,215,0,0.5);
+    animation:pulse-text 2s infinite;
+  }
+
+  /* PROGRESS RING */
+  .progress-ring-wrap { position:relative; width:80px; height:80px; }
+  .progress-ring-wrap svg { transform:rotate(-90deg); }
+  .ring-text { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-val { font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; }
+  .ring-lbl { font-size:0.6rem; color:var(--text2); }
+
+  /* MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.8); z-index:200;
+    backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--card);
+    border:1px solid var(--accent);
+    border-radius:16px;
+    padding:30px;
+    width:90%; max-width:500px;
+    box-shadow:var(--glow);
+    animation:fadeIn 0.3s ease;
+  }
+  .modal-title {
+    font-family:'Orbitron',monospace;
+    font-size:1rem; color:var(--accent);
+    margin-bottom:20px; letter-spacing:2px;
+  }
+
+  /* SPARKLINE */
+  .sparkline { display:flex; align-items:flex-end; gap:3px; height:40px; }
+  .spark-bar { width:8px; border-radius:2px; background:var(--accent); opacity:0.7; transition:opacity 0.2s; }
+  .spark-bar:hover { opacity:1; }
+
+  /* PAGE TITLE */
+  .page-title {
+    font-family:'Orbitron',monospace;
+    font-size:1.4rem; font-weight:900;
+    color:var(--text);
+    margin-bottom:24px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .page-title span { color:var(--accent); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg2); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+
+  /* NOTIFICATION BADGE */
+  .notif-badge {
+    background:var(--accent3); color:#fff;
+    width:18px; height:18px; border-radius:50%;
+    font-size:0.65rem; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center;
+    margin-left:4px;
+  }
+
+  /* TABLE ALTERNATE */
+  .data-table { width:100%; border-collapse:collapse; }
+  .data-table th {
+    background:var(--bg3);
+    padding:10px 14px; text-align:left;
+    font-family:'Orbitron',monospace; font-size:0.7rem;
+    color:var(--text2); letter-spacing:1px;
+    border-bottom:1px solid var(--border);
+  }
+  .data-table td {
+    padding:11px 14px; font-size:0.85rem;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .data-table tr:hover td { background:rgba(0,245,255,0.02); }
+
+  /* FOOTER */
+  footer {
+    text-align:center;
+    padding:30px;
+    color:var(--text2);
+    font-size:0.78rem;
+    border-top:1px solid var(--border);
+    margin-top:40px;
+    letter-spacing:1px;
+  }
+  footer strong { color:var(--accent); }
+
+  /* SECTION DIVIDER */
+  .divider {
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    margin:24px 0; opacity:0.3;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    ⚡ E-SPORTS
+    <span>TOURNAMENT SYSTEM v2.0</span>
+  </div>
+  <nav id="mainNav">
+    <button class="active" onclick="showPage('home',this)">🏠 Нүүр</button>
+    <button onclick="showPage('register',this)">📝 Бүртгэл</button>
+    <button onclick="showPage('bracket',this)">🎯 Bracket</button>
+    <button onclick="showPage('leaderboard',this)">🏆 Оноолт</button>
+    <button onclick="showPage('demo',this)">🎮 Demo</button>
+    <button onclick="showPage('stats',this)">📊 Статистик</button>
+    <button onclick="showPage('achievements',this)">🎖 Медаль</button>
+    <button onclick="showPage('archive',this)">📦 Архив</button>
+  </nav>
+  <div class="header-actions">
+    <button class="theme-btn" onclick="toggleTheme()" title="Дэлгэцийн горим">🌙</button>
+    <div class="user-badge" onclick="openLogin()">
+      <span id="userDisplay">🔐 Нэвтрэх</span>
+    </div>
+  </div>
+</header>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL: LOGIN -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-title">🔐 СИСТЕМД НЭВТРЭХ</div>
+    <div class="role-grid">
+      <div class="role-btn" onclick="selectRole('player',this)">
+        <span class="role-icon">🎮</span>Тоглогч
+      </div>
+      <div class="role-btn" onclick="selectRole('admin',this)">
+        <span class="role-icon">🛠</span>Зохион байгуулагч
+      </div>
+      <div class="role-btn" onclick="selectRole('viewer',this)">
+        <span class="role-icon">👀</span>Үзэгч
+      </div>
+    </div>
+    <div class="form-group"><label>Хэрэглэгчийн нэр</label><input type="text" id="loginUsername" placeholder="Жишээ: Mандухай99"></div>
+    <div class="form-group"><label>Нууц үг</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="doLogin()">НЭВТРЭХ</button>
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('loginModal')">БУЦАХ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TOURNAMENT CREATE -->
+<div class="modal-overlay" id="tournamentModal">
+  <div class="modal">
+    <div class="modal-title">⚔️ ТЭМЦЭЭН ҮҮСГЭХ</div>
+    <div class="form-group"><label>Тэмцээний нэр</label><input type="text" id="tName" placeholder="Монгол E-Sports Cup 2026"></div>
+    <div class="form-group"><label>Тоглоом</label>
+      <select id="tGame">
+        <option>Mobile Legends</option>
+        <option>PUBG Mobile</option>
+        <option>Free Fire</option>
+        <option>Minecraft</option>
+        <option>Valorant</option>
+        <option>CS2</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Оролцогчдын тоо</label>
+      <select id="tSize">
+        <option value="4">4 тоглогч</option>
+        <option value="8" selected>8 тоглогч</option>
+        <option value="16">16 тоглогч</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="createTournament()">ҮҮСГЭХ</button>
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('tournamentModal')">БУЦАХ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========= PAGES ========= -->
+
+<!-- HOME -->
+<main>
+<div class="page active" id="page-home">
+  <div class="live-ticker">
+    <div class="live-dot"></div>
+    <div class="ticker-text" id="tickerText">🔴 ШУУД — Б.Мандухай vs Г.Болор-Эрдэнэ тоглоом эхэллээ! • Шинэ тоглогч Н.Бат бүртгүүллээ • Free Fire tournament: 8 байр үлдлээ • Удахгүй: PUBG Grand Final!</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-title">E-SPORTS SYSTEM</div>
+    <div class="hero-sub">УХААЛАГ ТЭМЦЭЭНИЙ УДИРДЛАГЫН СИСТЕМ · v2.0</div>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('register',document.querySelectorAll('nav button')[1])">📝 Бүртгүүлэх</button>
+      <button class="btn btn-outline" onclick="showPage('demo',document.querySelectorAll('nav button')[4])">🎮 Demo ажиллуулах</button>
+      <button class="btn btn-gold btn" onclick="showPage('leaderboard',document.querySelectorAll('nav button')[3])">🏆 Оноолт харах</button>
+    </div>
+  </div>
+
+  <div class="grid4" style="margin-bottom:24px">
+    <div class="stat-box">
+      <div class="stat-num" id="statTournaments">12</div>
+      <div class="stat-label">⚔️ НИЙТ ТЭМЦЭЭН</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statPlayers">47</div>
+      <div class="stat-label">🎮 ТОГЛОГЧИД</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statMatches">138</div>
+      <div class="stat-label">🎯 ТОГЛОЛТУУД</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statActive">3</div>
+      <div class="stat-label">🔴 ИДЭВХТЭЙ</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">ИДЭВХТЭЙ ТЭМЦЭЭНҮҮД</div>
+      <div id="activeTournamentsList">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:600">🔥 Free Fire Open Cup</div>
+            <div style="font-size:0.78rem;color:var(--text2);margin-top:2px">8 тоглогч • Round 2/3</div>
+          </div>
+          <span class="badge badge-red">ШУУД</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:600">⚡ PUBG Mobile League</div>
+            <div style="font-size:0.78rem;color:var(--text2);margin-top:2px">16 тоглогч • Round 1/4</div>
+          </div>
+          <span class="badge badge-cyan">ЯВЖ БУЙ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
+          <div>
+            <div style="font-weight:600">🎯 ML: Bang Bang Classic</div>
+            <div style="font-size:0.78rem;color:var(--text2);margin-top:2px">4 тоглогч • Final</div>
+          </div>
+          <span class="badge badge-gold">FINAL</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:14px;width:100%" onclick="openModal('tournamentModal')">+ ШИНЭ ТЭМЦЭЭН</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ТОП ТОГЛОГЧИД</div>
+      <div id="topPlayersHome"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:4px">
+    <div class="card-title">СИСТЕМИЙН МОДУЛИУД</div>
+    <div class="grid4">
+      <div class="stat-box" style="cursor:pointer" onclick="showPage('register',document.querySelectorAll('nav button')[1])">
+        <div style="font-size:2rem">📝</div>
+        <div style="font-weight:700;margin-top:8px">Ухаалаг Бүртгэл</div>
+        <div class="stat-label">Автомат шалгалт</div>
+      </div>
+      <div class="stat-box" style="cursor:pointer" onclick="showPage('bracket',document.querySelectorAll('nav button')[2])">
+        <div style="font-size:2rem">🎯</div>
+        <div style="font-weight:700;margin-top:8px">Автомат Bracket</div>
+        <div class="stat-label">8/16 тоглогч</div>
+      </div>
+      <div class="stat-box" style="cursor:pointer" onclick="showPage('leaderboard',document.querySelectorAll('nav button')[3])">
+        <div style="font-size:2rem">📊</div>
+        <div style="font-weight:700;margin-top:8px">Live Оноолт</div>
+        <div class="stat-label">Бодит цаг</div>
+      </div>
+      <div class="stat-box" style="cursor:pointer" onclick="showPage('archive',document.querySelectorAll('nav button')[7])">
+        <div style="font-size:2rem">📦</div>
+        <div style="font-weight:700;margin-top:8px">Архив Систем</div>
+        <div class="stat-label">PDF экспорт</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="page" id="page-register">
+  <div class="page-title">📝 <span>БҮРТГЭЛ</span> СИСТЕМ</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">ШИНЭ ТОГЛОГЧ БҮРТГЭХ</div>
+      <div class="form-group"><label>Бүтэн нэр</label><input type="text" id="regName" placeholder="Жишээ: Н.Мандухай"></div>
+      <div class="form-group"><label>Тоглоомын нэр (Gamertag)</label><input type="text" id="regGamertag" placeholder="XxDragonSlayerxX"></div>
+      <div class="form-group"><label>Тоглоом</label>
+        <select id="regGame">
+          <option>Mobile Legends</option>
+          <option>PUBG Mobile</option>
+          <option>Free Fire</option>
+          <option>Minecraft</option>
+          <option>Valorant</option>
+          <option>CS2</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Анги</label>
+        <select id="regClass">
+          <option>12А</option><option>12Б</option><option>12В</option>
+          <option>11А</option><option>11Б</option><option>10А</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="registerPlayer()">✅ БҮРТГЭХ</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">БҮРТГЭЛТЭЙ ТОГЛОГЧИД <span class="notif-badge" id="playerCount">0</span></div>
+      <div style="overflow-y:auto;max-height:350px">
+        <table class="data-table" style="min-width:300px">
+          <thead>
+            <tr><th>#</th><th>НЭР</th><th>ТОГЛООМ</th><th>АНГИ</th><th></th></tr>
+          </thead>
+          <tbody id="playerTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BRACKET -->
+<div class="page" id="page-bracket">
+  <div class="page-title">🎯 АВТОМАТ <span>BRACKET</span></div>
+  <div class="card">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end">
+      <div style="flex:1;min-width:200px">
+        <label>Тэмцээн сонгох</label>
+        <select id="bracketTournament">
+          <option>Free Fire Open Cup (8)</option>
+          <option>PUBG Mobile League (16)</option>
+          <option>ML: Bang Bang Classic (4)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="generateBracket()">⚡ BRACKET ҮҮСГЭХ</button>
+      <button class="btn btn-outline" onclick="advanceRound()">▶ ДАРААГИЙН РАУНД</button>
+    </div>
+    <div class="bracket-container" id="bracketView">
+      <div style="text-align:center;padding:40px;color:var(--text2)">Bracket үүсгэхийн тулд дээрх товч дарна уу</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="page" id="page-leaderboard">
+  <div class="page-title">🏆 <span>ОНООЛТ</span> — LIVE</div>
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="live-dot"></div>
+        <span style="font-size:0.82rem;color:var(--accent)">БОДИТ ЦАГИЙН UPDATE</span>
+      </div>
+      <div style="display:flex;gap:10px">
+        <select id="lbFilter" onchange="renderLeaderboard()">
+          <option value="all">Бүх тоглоом</option>
+          <option value="Mobile Legends">Mobile Legends</option>
+          <option value="PUBG Mobile">PUBG Mobile</option>
+          <option value="Free Fire">Free Fire</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="exportPDF()">📄 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 3 PODIUM -->
+  <div style="display:flex;justify-content:center;align-items:flex-end;gap:16px;margin-bottom:28px;flex-wrap:wrap">
+    <div id="podium2" style="text-align:center;width:120px">
+      <div style="background:var(--card);border:2px solid var(--silver);border-radius:10px 10px 0 0;padding:16px 10px 10px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="font-size:1.4rem">🥈</div>
+        <div id="podium2name" style="font-size:0.78rem;font-weight:700;margin-top:4px">—</div>
+      </div>
+      <div style="background:var(--silver);color:#000;padding:6px;border-radius:0 0 8px 8px;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700">2ND</div>
+    </div>
+    <div id="podium1" style="text-align:center;width:140px">
+      <div style="background:var(--card);border:2px solid var(--gold);border-radius:10px 10px 0 0;padding:16px 10px 10px;height:130px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="font-size:1.8rem">🥇</div>
+        <div id="podium1name" style="font-size:0.85rem;font-weight:700;margin-top:4px;color:var(--gold)">—</div>
+      </div>
+      <div style="background:var(--gold);color:#000;padding:6px;border-radius:0 0 8px 8px;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700">CHAMPION</div>
+    </div>
+    <div id="podium3" style="text-align:center;width:120px">
+      <div style="background:var(--card);border:2px solid var(--bronze);border-radius:10px 10px 0 0;padding:16px 10px 10px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="font-size:1.2rem">🥉</div>
+        <div id="podium3name" style="font-size:0.78rem;font-weight:700;margin-top:4px">—</div>
+      </div>
+      <div style="background:var(--bronze);color:#000;padding:6px;border-radius:0 0 8px 8px;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700">3RD</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ТОГЛОГЧ</th>
+          <th>ТОГЛООМ</th>
+          <th>ЯЛАЛТ</th>
+          <th>ОНОО</th>
+          <th>GRAPH</th>
+          <th>МЕДАЛЬ</th>
+        </tr>
+      </thead>
+      <tbody id="lbBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DEMO -->
+<div class="page" id="page-demo">
+  <div class="page-title">🎮 DEMO <span>ГОРИМ</span></div>
+  <div class="card">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="startDemo()" id="demoBtn">🚀 DEMO ТЭМЦЭЭН ЭХЛҮҮЛЭХ</button>
+      <button class="btn btn-outline" onclick="resetDemo()">🔄 ДАХИН ЭХЛЭХ</button>
+    </div>
+    <div class="demo-status" id="demoStatus">Demo эхлүүлэхийн тулд товч дарна уу...</div>
+    <div id="demoBracket"></div>
+    <div id="demoWinner"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="page-stats">
+  <div class="page-title">📊 <span>СТАТИСТИК</span></div>
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">НИЙТ ТЭМЦЭЭН</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div>
+          <div class="stat-num" style="font-size:2.5rem">12</div>
+          <div class="stat-label">+3 энэ сар</div>
+        </div>
+        <div class="sparkline" id="spark1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">НИЙТ ТОГЛОГЧ</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div>
+          <div class="stat-num" style="font-size:2.5rem" id="statsPlayerCount">47</div>
+          <div class="stat-label">Бүртгэлтэй</div>
+        </div>
+        <div class="sparkline" id="spark2"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">ЯЛЛТын хувь</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div>
+          <div class="stat-num" style="font-size:2.5rem">68%</div>
+          <div class="stat-label">Дундаж win rate</div>
+        </div>
+        <div class="sparkline" id="spark3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">ТОГЛООМООР АНГИЛАЛ</div>
+      <div id="gameStats" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ХАМГИЙН ИХ ЯЛСАН</div>
+      <div id="topWinners" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="page" id="page-achievements">
+  <div class="page-title">🎖 <span>МЕДАЛЬ</span> & ACHIEVEMENT</div>
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div style="font-size:0.9rem">Тоглогч сонгох:</div>
+      <select id="achPlayerSelect" onchange="renderAchievements()" style="width:200px">
+        <option value="">— Сонгох —</option>
+      </select>
+      <div id="achPlayerScore" style="font-family:'Orbitron',monospace;color:var(--accent);font-size:1.1rem;font-weight:700"></div>
+    </div>
+  </div>
+  <div class="ach-grid" id="achGrid"></div>
+</div>
+
+<!-- ARCHIVE -->
+<div class="page" id="page-archive">
+  <div class="page-title">📦 <span>АРХИВ</span></div>
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <input type="text" placeholder="🔍 Хайх..." style="width:220px" oninput="filterArchive(this.value)">
+      <select id="archiveFilter" onchange="filterArchive('')">
+        <option>Бүх тоглоом</option>
+        <option>Free Fire</option>
+        <option>PUBG Mobile</option>
+        <option>Mobile Legends</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportPDF()">📄 PDF татах</button>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>ТЭМЦЭЭНИЙ НЭР</th><th>ТОГЛООМ</th><th>ДУУСГАСАН ОГНОО</th><th>ЯЛАГЧ</th><th>ТОГЛОГЧ</th><th>ҮЙЛДЭЛ</th></tr>
+      </thead>
+      <tbody id="archiveBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <strong>E-SPORTS SYSTEM v2.0</strong> · 12-р анги · Мэдээллийн Технологийн Төслийн Ажил 2025–2026<br>
+  Бат-Орших · Мандухай · Болор-Эрдэнэ · Зохион бүтээгчид
+</footer>
+
+<script>
+// ================= STATE =================
+let state = JSON.parse(localStorage.getItem('esports_state') || 'null') || {
+  players: [
+    {id:1, name:'Н.Мандухай', tag:'ManduQueen', game:'Free Fire', cls:'12А', wins:8, score:340, badges:['🥇','🔥','🎯']},
+    {id:2, name:'Г.Болор-Эрдэнэ', tag:'BoldBolor', game:'PUBG Mobile', cls:'12Б', wins:6, score:280, badges:['🥈','🔥']},
+    {id:3, name:'Б.Бат-Орших', tag:'BatDragon', game:'Mobile Legends', cls:'12В', wins:5, score:230, badges:['🥉','🎯']},
+    {id:4, name:'Д.Отгонбаяр', tag:'OtgoFPS', game:'Free Fire', cls:'11А', wins:4, score:190, badges:['🎯']},
+    {id:5, name:'Э.Болормаа', tag:'BolormaCrit', game:'PUBG Mobile', cls:'12А', wins:3, score:150, badges:[]},
+    {id:6, name:'Т.Эрдэнэ', tag:'ErdProMax', game:'Mobile Legends', cls:'11Б', wins:2, score:110, badges:[]},
+    {id:7, name:'С.Солонго', tag:'SolGaming', game:'Free Fire', cls:'10А', wins:1, score:70, badges:[]},
+    {id:8, name:'Б.Баярхүү', tag:'BayarAce', game:'CS2', cls:'12В', wins:1, score:60, badges:[]},
+  ],
+  tournaments:[],
+  currentUser: null,
+  selectedRole: 'player',
+};
+
+function saveState() { localStorage.setItem('esports_state', JSON.stringify(state)); }
+
+// ============== NAVIGATION ==============
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='leaderboard') renderLeaderboard();
+  if(id==='stats') renderStats();
+  if(id==='achievements') renderAchievementsPage();
+  if(id==='register') renderPlayerTable();
+  if(id==='archive') renderArchive();
+  if(id==='home') renderTopPlayersHome();
+}
+
+// ============== THEME ==============
+let darkMode = true;
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('light', !darkMode);
+  document.querySelector('.theme-btn').textContent = darkMode ? '🌙' : '☀️';
+}
+
+// ============== MODAL ==============
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openLogin() { openModal('loginModal'); }
+
+// ============== LOGIN ==============
+let selectedRole = 'player';
+function selectRole(role, el) {
+  selectedRole = role;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function doLogin() {
+  const u = document.getElementById('loginUsername').value.trim();
+  if(!u) { toast('❌ Нэрээ оруулна уу!'); return; }
+  state.currentUser = {name: u, role: selectedRole};
+  saveState();
+  const roleLabels = {player:'🎮 Тоглогч', admin:'🛠 Зохион байгуулагч', viewer:'👀 Үзэгч'};
+  document.getElementById('userDisplay').textContent = roleLabels[selectedRole]+' · '+u;
+  closeModal('loginModal');
+  toast('✅ Тавтай морил, '+u+'!');
+}
+
+// ============== REGISTER ==============
+function registerPlayer() {
+  const name = document.getElementById('regName').value.trim();
+  const tag = document.getElementById('regGamertag').value.trim();
+  const game = document.getElementById('regGame').value;
+  const cls = document.getElementById('regClass').value;
+  if(!name||!tag){toast('❌ Нэр болон Gamertag заавал!'); return;}
+  if(state.players.find(p=>p.tag.toLowerCase()===tag.toLowerCase())){toast('⚠️ Энэ gamertag бүртгэлтэй байна!'); return;}
+  const newP = {
+    id: Date.now(), name, tag, game, cls,
+    wins: 0, score: 0, badges:[]
+  };
+  state.players.push(newP);
+  saveState();
+  renderPlayerTable();
+  updateStatCounts();
+  document.getElementById('regName').value='';
+  document.getElementById('regGamertag').value='';
+  toast('✅ '+name+' амжилттай бүртгэгдлээ!');
+}
+
+function renderPlayerTable() {
+  const tbody = document.getElementById('playerTable');
+  document.getElementById('playerCount').textContent = state.players.length;
+  tbody.innerHTML = state.players.map((p,i)=>`
+    <tr>
+      <td><span class="rank-num">${i+1}</span></td>
+      <td><div style="font-weight:600">${p.name}</div><div style="font-size:0.72rem;color:var(--text2)">${p.tag}</div></td>
+      <td><span class="badge badge-cyan" style="font-size:0.65rem">${p.game}</span></td>
+      <td>${p.cls}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removePlayer(${p.id})">✕</button></td>
+    </tr>`).join('');
+}
+
+function removePlayer(id) {
+  state.players = state.players.filter(p=>p.id!==id);
+  saveState(); renderPlayerTable(); updateStatCounts();
+  toast('🗑️ Тоглогч устгагдлаа');
+}
+
+// ============== BRACKET ==============
+let bracketData = null;
+function generateBracket() {
+  let players = [...state.players].sort(()=>Math.random()-0.5);
+  const n = Math.min(players.length, 8);
+  players = players.slice(0,n);
+  if(players.length < 2){toast('⚠️ 2-оос дээш тоглогч хэрэгтэй!'); return;}
+  // Pad to power of 2
+  while(players.length & (players.length-1)) {
+    players.push({name:'BYE',tag:'—',id:null});
+  }
+  bracketData = buildBracket(players);
+  renderBracketView();
+  toast('✅ Bracket амжилттай үүслээ!');
+}
+
+function buildBracket(players) {
+  const rounds = [];
+  let current = [];
+  for(let i=0;i<players.length;i+=2) current.push({p1:players[i],p2:players[i+1],winner:null,score1:0,score2:0});
+  rounds.push(current);
+  while(current.length > 1) {
+    const next = [];
+    for(let i=0;i<current.length;i+=2) next.push({p1:null,p2:null,winner:null,score1:0,score2:0});
+    rounds.push(next);
+    current = next;
+  }
+  return rounds;
+}
+
+function advanceRound() {
+  if(!bracketData){toast('⚠️ Эхлээд bracket үүсгэнэ үү!'); return;}
+  let advanced = false;
+  for(let ri=0; ri<bracketData.length-1; ri++) {
+    const round = bracketData[ri];
+    let allDone = true;
+    round.forEach((match,mi)=>{
+      if(!match.winner) {
+        // simulate
+        if(match.p2 && match.p2.id===null) {match.winner=match.p1; match.score1=1; match.score2=0;}
+        else if(match.p1 && match.p1.id===null) {match.winner=match.p2; match.score1=0; match.score2=1;}
+        else {
+          match.score1 = Math.floor(Math.random()*3);
+          match.score2 = Math.floor(Math.random()*3);
+          if(match.score1===match.score2) match.score1++;
+          match.winner = match.score1>match.score2 ? match.p1 : match.p2;
+        }
+        // give score
+        if(match.winner && match.winner.id) {
+          const p = state.players.find(x=>x.id===match.winner.id);
+          if(p){p.wins++;p.score+=20+Math.floor(Math.random()*10);}
+        }
+        advanced = true;
+      }
+      if(!match.winner) allDone=false;
+    });
+    if(allDone && ri+1 < bracketData.length) {
+      round.forEach((match,mi)=>{
+        const nextMatch = bracketData[ri+1][Math.floor(mi/2)];
+        if(mi%2===0) nextMatch.p1=match.winner;
+        else nextMatch.p2=match.winner;
+      });
+    }
+    if(advanced) break;
+  }
+  saveState();
+  renderBracketView();
+  if(!advanced) toast('🏆 Тэмцээн дууссан!');
+  else toast('▶ Раунд дууслаа!');
+}
+
+function renderBracketView() {
+  if(!bracketData){return;}
+  const container = document.getElementById('bracketView');
+  const roundNames = ['Раунд 1','Тэмнэлт 2','Хагас финал','ФИНАЛ'];
+  container.innerHTML = `<div class="bracket">${bracketData.map((round,ri)=>`
+    <div class="bracket-round">
+      <div class="bracket-round-title">${roundNames[ri]||'Раунд '+(ri+1)}</div>
+      ${round.map(match=>{
+        const p1n = match.p1?match.p1.name:'TBD';
+        const p2n = match.p2?match.p2.name:'TBD';
+        const w = match.winner;
+        return `<div class="match-card">
+          <div class="match-player ${w&&w===match.p1?'winner':''}">
+            <span>${p1n}</span>
+            <span class="match-score">${match.score1||0}</span>
+          </div>
+          <div class="match-player ${w&&w===match.p2?'winner':''}">
+            <span>${p2n}</span>
+            <span class="match-score">${match.score2||0}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('')}</div>`;
+}
+
+// ============== LEADERBOARD ==============
+function renderLeaderboard() {
+  const filter = document.getElementById('lbFilter')?.value||'all';
+  let players = [...state.players];
+  if(filter!=='all') players=players.filter(p=>p.game===filter);
+  players.sort((a,b)=>b.score-a.score);
+  const maxScore = players[0]?.score||1;
+
+  // Podium
+  if(players[0]) document.getElementById('podium1name').textContent=players[0].name;
+  if(players[1]) document.getElementById('podium2name').textContent=players[1].name;
+  if(players[2]) document.getElementById('podium3name').textContent=players[2].name;
+
+  const tbody = document.getElementById('lbBody');
+  tbody.innerHTML = players.map((p,i)=>{
+    const medals = p.badges.join(' ')||'—';
+    const pct = Math.round((p.score/maxScore)*100);
+    return `<tr class="rank-${i+1}">
+      <td><span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span></td>
+      <td><div class="player-name">${p.name}</div><div style="font-size:0.72rem;color:var(--text2)">${p.tag}</div></td>
+      <td><span class="badge badge-cyan" style="font-size:0.65rem">${p.game}</span></td>
+      <td style="font-family:'Orbitron',monospace;color:var(--accent)">${p.wins}</td>
+      <td style="font-family:'Orbitron',monospace;font-weight:700;color:${i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text)'}">${p.score}</td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+          <span style="font-size:0.72rem;color:var(--text2);min-width:30px">${pct}%</span>
+        </div>
+      </td>
+      <td>${medals}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============== LIVE UPDATE ==============
+setInterval(()=>{
+  state.players.forEach(p=>{
+    if(Math.random()<0.3){
+      p.score += Math.floor(Math.random()*3);
+    }
+  });
+  saveState();
+  if(document.getElementById('page-leaderboard').classList.contains('active')) renderLeaderboard();
+  updateStatCounts();
+}, 4000);
+
+// ============== DEMO ==============
+let demoRunning = false;
+const demoNames = ['🐉 DragonMaster','⚡ LightningBolt','🔥 FireStorm','💎 DiamondPro','🎯 SnipeKing','🛡 IronShield','🌪 WindRacer','👑 KingCobra'];
+
+function startDemo() {
+  if(demoRunning) return;
+  demoRunning = true;
+  document.getElementById('demoBtn').disabled = true;
+  document.getElementById('demoWinner').innerHTML = '';
+  const status = document.getElementById('demoStatus');
+
+  const steps = [
+    {msg:'🔄 Тоглогчдыг холин байна...', delay:600},
+    {msg:'⚙️ Bracket автоматаар үүсч байна...', delay:1200},
+    {msg:'🎮 1-р раунд эхэллээ!', delay:1800},
+    {msg:'⚔️ Тоглолтууд явагдаж байна...', delay:2500},
+    {msg:'🔥 Хагас финал!', delay:3200},
+    {msg:'👑 ГРАН ФИНАЛ!', delay:3900},
+  ];
+
+  steps.forEach(s=>setTimeout(()=>{ status.textContent=s.msg; },s.delay));
+
+  // shuffle
+  const ps = [...demoNames].sort(()=>Math.random()-0.5);
+  const matches = [];
+  for(let i=0;i<ps.length;i+=2) matches.push({p1:ps[i],p2:ps[i+1]});
+
+  setTimeout(()=>{
+    const bracket = document.getElementById('demoBracket');
+    bracket.innerHTML = `<div class="bracket" style="min-width:auto;flex-direction:column;gap:12px">
+      <div style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--accent);letter-spacing:2px;margin-bottom:4px">BRACKET — 8 ТОГЛОГЧ</div>
+      <div class="grid2" style="gap:10px">
+        ${matches.map((m,i)=>{
+          const s1=Math.floor(Math.random()*3), s2=Math.floor(Math.random()*3);
+          const score1=s1===s2?s1+1:s1, score2=s1===s2?s2:s2;
+          const w = score1>score2?m.p1:m.p2;
+          return `<div class="match-card">
+            <div class="match-player ${score1>score2?'winner':''}"><span>${m.p1}</span><span class="match-score">${score1}</span></div>
+            <div class="match-player ${score2>score1?'winner':''}"><span>${m.p2}</span><span class="match-score">${score2}</span></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+    // Determine winners
+    const winners = matches.map(m=>{
+      const s1=Math.floor(Math.random()*3)+1, s2=Math.floor(Math.random()*3);
+      return s1>s2?m.p1:m.p2;
+    });
+    const finalist1 = Math.random()>0.5?winners[0]:winners[1];
+    const finalist2 = Math.random()>0.5?winners[2]:winners[3];
+    const champion = Math.random()>0.5?finalist1:finalist2;
+
+    setTimeout(()=>{
+      status.textContent='🏆 ТЭМЦЭЭН ДУУСЛЛАА!';
+      document.getElementById('demoWinner').innerHTML = `
+        <div class="winner-announce">
+          <div style="font-size:0.85rem;color:var(--text2);letter-spacing:2px;margin-bottom:8px">GRAND CHAMPION</div>
+          <div class="winner-name">👑 ${champion}</div>
+          <div style="margin-top:16px;color:var(--gold);font-size:0.9rem">🥇 Нэгдүгээр байр · 100 оноо авлаа!</div>
+          <div style="margin-top:8px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <span class="badge badge-gold">WINNER</span>
+            <span class="badge badge-cyan">🔥 HOT STREAK</span>
+            <span class="badge badge-purple">🎯 MVP</span>
+          </div>
+        </div>`;
+      demoRunning=false;
+      document.getElementById('demoBtn').disabled=false;
+    },4800);
+  },1400);
+}
+
+function resetDemo() {
+  demoRunning=false;
+  document.getElementById('demoBtn').disabled=false;
+  document.getElementById('demoStatus').textContent='Demo эхлүүлэхийн тулд товч дарна уу...';
+  document.getElementById('demoBracket').innerHTML='';
+  document.getElementById('demoWinner').innerHTML='';
+}
+
+// ============== STATS ==============
+function renderStats() {
+  document.getElementById('statsPlayerCount').textContent = state.players.length;
+  // sparklines
+  ['spark1','spark2','spark3'].forEach(id=>{
+    const el = document.getElementById(id);
+    const vals = Array.from({length:8},()=>Math.floor(Math.random()*80)+20);
+    el.innerHTML = vals.map(v=>`<div class="spark-bar" style="height:${v}%;background:${id==='spark1'?'var(--accent)':id==='spark2'?'var(--accent2)':'var(--accent3)'}"></div>`).join('');
+  });
+  // game stats
+  const gameCount = {};
+  state.players.forEach(p=>{ gameCount[p.game]=(gameCount[p.game]||0)+1; });
+  const total = state.players.length||1;
+  document.getElementById('gameStats').innerHTML = Object.entries(gameCount).map(([g,c])=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:0.85rem;font-weight:600">${g}</span>
+        <span style="font-size:0.82rem;color:var(--text2)">${c} тоглогч</span>
+      </div>
+      <div class="score-bar" style="height:8px">
+        <div class="score-bar-fill" style="width:${Math.round(c/total*100)}%"></div>
+      </div>
+    </div>`).join('');
+  // top winners
+  const sorted = [...state.players].sort((a,b)=>b.wins-a.wins).slice(0,5);
+  document.getElementById('topWinners').innerHTML = sorted.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'Orbitron',monospace;font-size:0.9rem;width:20px;color:${i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text2)'}">${i+1}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.88rem">${p.name}</div>
+        <div style="font-size:0.72rem;color:var(--text2)">${p.game}</div>
+      </div>
+      <span class="badge badge-gold">${p.wins} ялалт</span>
+    </div>`).join('');
+}
+
+// ============== ACHIEVEMENTS ==============
+const allAchievements = [
+  {id:'winner',icon:'🥇',name:'Champion',desc:'Тэмцээн ялсан',req:p=>p.wins>=1},
+  {id:'win5',icon:'🏆',name:'5x Winner',desc:'5 удаа ялсан',req:p=>p.wins>=5},
+  {id:'pro',icon:'🔥',name:'Pro Player',desc:'200+ оноо',req:p=>p.score>=200},
+  {id:'legend',icon:'⭐',name:'Legend',desc:'300+ оноо',req:p=>p.score>=300},
+  {id:'mvp',icon:'🎯',name:'MVP',desc:'Хамгийн өндөр оноо',req:(p,all)=>p.score===Math.max(...all.map(x=>x.score))},
+  {id:'rookie',icon:'🌱',name:'Rookie',desc:'Анхны тоглолт',req:p=>p.wins>=0},
+  {id:'streak',icon:'⚡',name:'Win Streak',desc:'3+ ялалт дараалан',req:p=>p.wins>=3},
+  {id:'social',icon:'🤝',name:'Team Player',desc:'Бүртгүүлсэн',req:p=>true},
+];
+
+function renderAchievementsPage() {
+  const sel = document.getElementById('achPlayerSelect');
+  sel.innerHTML = '<option value="">— Сонгох —</option>' +
+    state.players.map(p=>`<option value="${p.id}">${p.name} (${p.tag})</option>`).join('');
+  renderAchievements();
+}
+
+function renderAchievements() {
+  const selId = parseInt(document.getElementById('achPlayerSelect').value);
+  const player = state.players.find(p=>p.id===selId);
+  const scoreEl = document.getElementById('achPlayerScore');
+  if(!player){ document.getElementById('achGrid').innerHTML='<div style="color:var(--text2);padding:20px">Тоглогч сонгоно уу</div>'; scoreEl.textContent=''; return; }
+  scoreEl.textContent = `⚡ ${player.score} оноо · ${player.wins} ялалт`;
+  document.getElementById('achGrid').innerHTML = allAchievements.map(a=>{
+    const unlocked = a.req(player, state.players);
+    return `<div class="ach-card ${unlocked?'':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+      ${unlocked?'<span class="badge badge-green" style="margin-top:6px">НЭЭЛТТЭЙ</span>':'<span class="badge badge-red" style="margin-top:6px">ХААЛТТАЙ</span>'}
+    </div>`;
+  }).join('');
+}
+
+// ============== ARCHIVE ==============
+const archiveData = [
+  {id:1,name:'Free Fire Spring Cup',game:'Free Fire',date:'2026-03-10',winner:'Н.Мандухай',players:8},
+  {id:2,name:'PUBG Winter League',game:'PUBG Mobile',date:'2026-02-20',winner:'Г.Болор-Эрдэнэ',players:16},
+  {id:3,name:'ML Classic 2025',game:'Mobile Legends',date:'2025-12-15',winner:'Б.Бат-Орших',players:8},
+  {id:4,name:'Free Fire Invitational',game:'Free Fire',date:'2025-11-05',winner:'Д.Отгонбаяр',players:4},
+];
+
+function renderArchive(filter='') {
+  const gameFilter = document.getElementById('archiveFilter')?.value||'';
+  let data = archiveData;
+  if(filter) data=data.filter(d=>d.name.toLowerCase().includes(filter.toLowerCase())||d.winner.toLowerCase().includes(filter.toLowerCase()));
+  if(gameFilter&&gameFilter!=='Бүх тоглоом') data=data.filter(d=>d.game===gameFilter);
+  document.getElementById('archiveBody').innerHTML = data.map((d,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td style="font-weight:600">${d.name}</td>
+      <td><span class="badge badge-cyan" style="font-size:0.65rem">${d.game}</span></td>
+      <td style="color:var(--text2)">${d.date}</td>
+      <td style="color:var(--gold);font-weight:600">🏆 ${d.winner}</td>
+      <td>${d.players}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="toast('📄 Архив #${d.id} харагдаж байна')">Харах</button></td>
+    </tr>`).join('');
+}
+
+function filterArchive(v) { renderArchive(v); }
+
+// ============== TOP PLAYERS HOME ==============
+function renderTopPlayersHome() {
+  const sorted = [...state.players].sort((a,b)=>b.score-a.score).slice(0,5);
+  document.getElementById('topPlayersHome').innerHTML = sorted.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'Orbitron',monospace;min-width:22px;font-size:0.9rem;color:${i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text2)'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.88rem">${p.name}</div>
+        <div style="font-size:0.72rem;color:var(--text2)">${p.tag} · ${p.game}</div>
+      </div>
+      <span style="font-family:'Orbitron',monospace;color:var(--accent);font-weight:700">${p.score}</span>
+    </div>`).join('');
+}
+
+// ============== STAT COUNTS ==============
+function updateStatCounts() {
+  document.getElementById('statPlayers').textContent = state.players.length;
+  const totalScore = state.players.reduce((s,p)=>s+p.score,0);
+  document.getElementById('statMatches').textContent = Math.floor(totalScore/8)+state.players.reduce((s,p)=>s+p.wins,0);
+}
+
+// ============== TOURNAMENT CREATE ==============
+function createTournament() {
+  const name = document.getElementById('tName').value.trim();
+  if(!name){toast('❌ Нэр оруулна уу!'); return;}
+  const t = {
+    id:Date.now(), name,
+    game:document.getElementById('tGame').value,
+    size:parseInt(document.getElementById('tSize').value),
+    status:'active', date: new Date().toISOString().slice(0,10)
+  };
+  state.tournaments.push(t);
+  state.currentUser && (document.getElementById('statTournaments').textContent = parseInt(document.getElementById('statTournaments').textContent)+1);
+  saveState();
+  closeModal('tournamentModal');
+  toast('✅ "'+name+'" тэмцээн үүслээ!');
+}
+
+// ============== PDF EXPORT ==============
+function exportPDF() {
+  const sorted = [...state.players].sort((a,b)=>b.score-a.score);
+  const rows = sorted.map((p,i)=>`${i+1}. ${p.name} (${p.tag}) — ${p.game} — Оноо: ${p.score} — Ялалт: ${p.wins}`).join('\n');
+  const content = `E-SPORTS SYSTEM v2.0\nОноолтын жагсаалт\n${'='.repeat(40)}\n${rows}\n\nЭкспортлосон: ${new Date().toLocaleString()}`;
+  const blob = new Blob([content],{type:'text/plain'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='esports_leaderboard.txt'; a.click();
+  toast('📄 Файл татагдлаа!');
+}
+
+// ============== TOAST ==============
+function toast(msg, dur=3000) {
+  const div = document.createElement('div');
+  div.className='toast'; div.textContent=msg;
+  const container = document.getElementById('toastContainer');
+  container.appendChild(div);
+  setTimeout(()=>div.remove(), dur);
+}
+
+// ============== INIT ==============
+renderPlayerTable();
+renderTopPlayersHome();
+renderArchive();
+updateStatCounts();
+</script>
+</body>
+</html>
